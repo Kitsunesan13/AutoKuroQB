@@ -10,9 +10,11 @@ def get_valid_wordlist(primary, fallback):
     elif os.path.exists(fallback): return fallback
     else: return None
 
-def filter_priority_targets(input_file, output_dir):
+def filter_priority_targets(input_file, output_dir, config_keywords):
     priority_file = os.path.join(output_dir, "priority_hosts_ferox.txt")
-    keywords = ["admin", "api", "dev", "stag", "test", "corp", "intranet", "dashboard", "login"]
+    
+    # Read keywords from config
+    keywords = config_keywords if config_keywords else ["admin", "login", "api", "dev"]
     
     priority_urls = set()
     total_hosts = 0
@@ -36,13 +38,13 @@ def filter_priority_targets(input_file, output_dir):
     console.print(f"[dim]   [i] Smart Filter: {len(priority_urls)} priority hosts out of {total_hosts}.[/dim]")
     return priority_file
 
-def execute_feroxbuster(input_file, output_dir, flags, wordlist_primary, wordlist_fallback):
+def execute_feroxbuster(input_file, output_dir, flags, wordlist_primary, wordlist_fallback, config_keywords):
     wordlist = get_valid_wordlist(wordlist_primary, wordlist_fallback)
     if not wordlist:
         console.print("[red][X] Error: No wordlist found.[/red]")
         return None
 
-    target_file = filter_priority_targets(input_file, output_dir)
+    target_file = filter_priority_targets(input_file, output_dir, config_keywords)
     json_output = os.path.join(output_dir, "ferox_raw.json")
     final_txt_output = os.path.join(output_dir, "hidden_dirs.txt")
     

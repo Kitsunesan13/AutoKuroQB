@@ -1,6 +1,12 @@
 import os
 from .utils import run_os_command
 
+def execute_nuclei_tech_detect(input_file, output_dir, flags):
+    output_file = os.path.join(output_dir, "technology.txt")
+    cmd = f"nuclei -l {input_file} {flags} -o {output_file}"
+    run_os_command(cmd, "Nuclei (Tech Detect)")
+    return output_file
+
 def execute_nuclei_takeover(input_file, output_dir, flags):
     output_file = os.path.join(output_dir, "takeover_results.txt")
     cmd = f"nuclei -l {input_file} {flags} -o {output_file}"

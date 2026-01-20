@@ -1,9 +1,6 @@
 import os
 import shutil
 from .utils import run_os_command
-from rich.console import Console
-
-console = Console()
 
 def execute_gau(domain, output_dir, flags):
     output_file = os.path.join(output_dir, "archive_urls.txt")
@@ -35,5 +32,4 @@ def execute_paramspider(domain, output_dir, flags):
     elif os.path.exists(f"{domain}.txt"):
         shutil.move(f"{domain}.txt", final_destination)
         return final_destination
-
     return None
