@@ -83,6 +83,24 @@ priority_keywords:
   - internal
 
 ```
+## API Integration (Recommended)
+
+To significantly increase subdomain discovery, it is highly recommended to configure external API keys (Shodan, Censys, etc.) for `subfinder`. AutoKuro QB will automatically leverage these keys without any code changes.
+
+1. Locate the Subfinder provider configuration file.
+* Linux/VPS: `$HOME/.config/subfinder/provider-config.yaml`
+
+
+2. Add your API keys to the file:
+
+```yaml
+shodan:
+  - "YOUR_SHODAN_API_KEY"
+
+censys:
+  - "YOUR_CENSYS_APP_ID:YOUR_CENSYS_SECRET"
+
+```
 
 ## Usage
 
