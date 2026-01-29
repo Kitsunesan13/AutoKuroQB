@@ -7,11 +7,23 @@ telegram:
   chat_id: "YOUR_CHAT_ID_HERE"
 
 # --- GLOBAL SETTINGS ---
-timeout: 20
+timeout: 600
+adaptive_retry: true
+max_retries: 2
+
 wordlist_path: "/usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-directories.txt"
 wordlist_fallback: "/usr/share/wordlists/dirb/common.txt"
 
-# --- INTELLIGENCE CONFIG (Context Aware) ---
+# --- CONTEXT AWARE RULES ---
+context_rules:
+  wordpress: "wordpress,wpscan,wp-plugin"
+  laravel: "laravel,php"
+  spring: "springboot,java,actuator"
+  jira: "jira,atlassian"
+  kubernetes: "kubernetes,k8s"
+  drupal: "drupal"
+  joomla: "joomla"
+
 priority_keywords:
   - admin
   - api
@@ -23,79 +35,66 @@ priority_keywords:
   - dashboard
   - login
   - secret
-  - v1
-  - v2
-  - auth
-  - portal
 
-# --- HARDWARE PROFILES (SCALING) ---
-# Multiplier untuk Threads (-t), Concurrency (-c), Rate Limit (-rl), Workers
+# --- HARDWARE PROFILES ---
 hardware:
   mobile:
-    description: "Low Resource (Termux/Old Device)"
+    description: "Low Resource (Termux)"
     multiplier: 0.4
-
+    max_parallel_tasks: 2
   desktop:
-    description: "Standard Resource (PC/Workstation)"
+    description: "Standard Resource"
     multiplier: 1.0
-
+    max_parallel_tasks: 4
   vps:
-    description: "High Performance (Cloud Server)"
+    description: "High Performance"
     multiplier: 2.5
+    max_parallel_tasks: 8
 
-# --- MODES (TACTICAL) ---
+# --- MODES ---
 modes:
-  # GHOST (Stealth) - Anti-JA3 enabled
   ghost:
-    # RECON: Stream langsung dari Subfinder ke Httpx (Piping)
     recon_stream: "subfinder -all -silent | httpx-toolkit -silent -mc 200,301,302,403,404 -retries 3 -threads 10 -rl 30 -random-agent"
-
+    naabu: "-p 80,443,8000,8080,8443,8888 -rate 50 -silent"
     nuclei_tech: "-t http/technologies -silent -tls-impersonate"
     nuclei_takeover: "-t http/takeovers -silent -tls-impersonate"
     nuclei_cloud: "-t cloud/enumeration -tags cloud,bucket,s3,azure,google -silent -tls-impersonate"
     nuclei: "-silent -severity critical,high,medium,low -retries 2 -rl 15 -c 10 -ires -tls-impersonate"
     nuclei_tokens: "-tags token,keys,exposure -silent -rl 15 -tls-impersonate"
-
     feroxbuster: "--stdin --extract-links --json --depth 1 --rate-limit 30 -t 5 --random-agent --redirects"
     gau: "--threads 2 --subs"
     katana: "-silent -jc -kf all -c 5 -d 2 -random-agent -rl 15"
-    paramspider: "--quiet"
+    paramspider: ""
     dalfox: "pipe -S --skip-bcs --mining-dict --worker 10 --delay 200"
     trufflehog: "filesystem --no-verification --concurrency 5"
 
-  # RANGER (Standard)
   ranger:
     recon_stream: "subfinder -all -silent | httpx-toolkit -silent -mc 200,301,302,403,404 -retries 2 -threads 25 -rl 100 -random-agent"
-
+    naabu: "-top-ports 1000 -rate 300 -exclude-cdn -silent"
     nuclei_tech: "-t http/technologies -silent -tls-impersonate"
     nuclei_takeover: "-t http/takeovers -silent -tls-impersonate"
     nuclei_cloud: "-t cloud/enumeration -tags cloud,bucket,s3 -silent -tls-impersonate"
+    # General Nuclei config (tags will be injected by main.py)
     nuclei: "-silent -severity critical,high,medium,low,info -retries 1 -rl 50 -c 25 -ires -tls-impersonate"
     nuclei_tokens: "-tags token,keys,exposure -silent -tls-impersonate"
-
     feroxbuster: "--stdin --extract-links --json --depth 2 -t 20 --random-agent --redirects"
     gau: "--threads 5 --subs"
     katana: "-silent -jc -kf all -c 20 -d 3 -random-agent"
-    paramspider: "--quiet"
+    paramspider: ""
     dalfox: "pipe -S --skip-bcs --mining-dict --worker 25"
     trufflehog: "filesystem --no-verification --concurrency 10"
 
-  # BLITZ (Aggressive)
   blitz:
     recon_stream: "subfinder -all -silent -t 100 | httpx-toolkit -silent -mc 200,301,302,403,404 -retries 1 -threads 100"
-
+    naabu: "-top-ports 1000 -rate 1000 -exclude-cdn -silent"
     nuclei_tech: "-t http/technologies -silent"
     nuclei_takeover: "-t http/takeovers -silent"
     nuclei_cloud: "-t cloud/enumeration -tags cloud,bucket,s3 -silent"
     nuclei: "-silent -severity critical,high,medium,low,info -retries 0 -c 50"
     nuclei_tokens: "-tags token,keys,exposure -silent"
-
     feroxbuster: "--stdin --extract-links --json --depth 3 -t 50 --redirects"
     gau: "--threads 20 --subs"
     katana: "-silent -jc -kf all -c 50 -d 3"
-    paramspider: "--quiet"
+    paramspider: ""
     dalfox: "pipe -S --skip-bcs --mining-dict --worker 100"
     trufflehog: "filesystem --no-verification --concurrency 50"
-
-    # Naabu (Port Scan) Config
-    naabu: "-top-ports 1000 -exclude-cdn -silent"
