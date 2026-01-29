@@ -165,7 +165,7 @@ python3 main.py start -d example.com -m ghost -hw mobile
 **Proxy Scan**
 
 ```bash
-python3 main.py start -d example.com -p "[http://127.0.0.1:8080](http://127.0.0.1:8080)"
+python3 main.py start -d example.com -p "http://127.0.0.1:8080"
 
 ```
 
@@ -208,5 +208,3 @@ This tool was created by a university student who is currently learning Python a
 This tool is developed for educational purposes and authorized security testing only. The author is not responsible for any misuse or damage caused by this program. Always obtain proper authorization before scanning any target.
 
 ```
-
-```s
